@@ -1,6 +1,6 @@
 import winreg
 
-STATUS_PATH = "Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.bluelightreductionstate\\windows.data.bluelightreduction.bluelightreductionstate"
+STATUS_PATH = r"Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current\\default$windows.data.bluelightreduction.bluelightreductionstate\\windows.data.bluelightreduction.bluelightreductionstate"
 STATE_VALUE_NAME = "Data"
 
 
@@ -48,7 +48,6 @@ def process_night_light_state_data(byte_array):
             n += 1
         byte_array[23] = 0x10
         byte_array[24] = 0x00
-        # extend array
         ba = bytearray(1)
         ba[0] = 0x00
         byte_array.extend(ba)
@@ -69,8 +68,7 @@ def write_data_to_registry(byte_array, night_light_state):
     return retval
 
 
-if __name__ == '__main__':
-
+def run_night_light_process():
     night_light_is_on = False
     value = get_night_light_state_data()
     size = len(value)
