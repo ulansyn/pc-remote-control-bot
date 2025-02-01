@@ -1,4 +1,6 @@
 import re
+from time import sleep
+
 import telebot
 import threading
 import configparser

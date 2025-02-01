@@ -1,6 +1,4 @@
-from time import sleep
 import os
-
 
 
 def shutdown():
@@ -22,14 +20,17 @@ def hibernation_mode():
 def lock_screen(seconds=1):
     os.system("rundll32.exe user32.dll,LockWorkStation")
 
+
 def execute_command(command, ):
-    actions = {'/shutdown':shutdown,
-               '/reboot':reboot,
-               '/sleep_mode':sleep_mode,
-               '/hibernation_mode':hibernation_mode,
-               '/lock_screen':lock_screen,
+    actions = {'/shutdown': shutdown,
+               '/reboot': reboot,
+               '/sleep_mode': sleep_mode,
+               '/hibernation_mode': hibernation_mode,
+               '/lock_screen': lock_screen,
                }
     actions[command]()
+
+
 def power_control(command):
     try:
         execute_command(command)
