@@ -1,4 +1,5 @@
 import re
+from random import random, randint
 from time import sleep
 
 import telebot
@@ -7,14 +8,16 @@ import configparser
 from telebot import types, apihelper
 from commands.power_control import *
 from commands.actions import ACTIONS
-from commands.isMute import is_mute
+from commands.is_mute import is_mute
 from commands.open_link import open_link
 from commands.get_screenshot import get_screenshot
 from commands.youtube_search import youtube_search
 from commands.change_wallpaper import change_wallpaper
 from commands.current_volume import get_current_volume
 from commands.night_light import run_night_light_process
-from commands.volume_control import decrease_volume, STEP, increase_volume
+from commands.volume_control import decrease_volume, STEP, increase_volume, update_volume
+from src.commands.current_volume import get_prev_volume
+from src.commands.volume_control import set_volume
 
 
 def timer(bot, USER_ID, command, delay, func, shutdown_flag):
@@ -116,11 +119,21 @@ def handle_volume_control(message):
 
     # Создаем клавиатуру
     keyboard = types.InlineKeyboardMarkup()
+
+    # Кнопки управления громкостью
     button1 = types.InlineKeyboardButton("◀️ Уменьшить", callback_data='button1')
     button2 = types.InlineKeyboardButton("Увеличить ▶️", callback_data='button2')
     mute_button_text = "Выключить звук" if not is_mute() else "Включить звук"
     button3 = types.InlineKeyboardButton(mute_button_text, callback_data='button3')
     keyboard.add(button1, button2, button3)
+
+    # Ряд кнопок со значениями громкости
+    button_15 = types.InlineKeyboardButton("15", callback_data='volume_15')
+    button_30 = types.InlineKeyboardButton("30", callback_data='volume_30')
+    button_50 = types.InlineKeyboardButton("50", callback_data='volume_50')
+    button_75 = types.InlineKeyboardButton("75", callback_data='volume_75')
+    button_100 = types.InlineKeyboardButton("100", callback_data='volume_100')
+    keyboard.row(button_15, button_30, button_50, button_75, button_100)
 
     # Отправляем сообщение с текущей громкостью и клавиатурой
     msg = bot.send_message(USER_ID, f"Текущая громкость: {get_current_volume()}", reply_markup=keyboard)
@@ -137,23 +150,33 @@ def change_wallpaper_(message):
 @bot.callback_query_handler(func=lambda call: True)
 def handle_button_press(call):
     global first_message_id
-
+    null_symbol = "ㅤ"
     def update_volume_message():
         # Обновляем сообщение с текущей громкостью и клавиатурой
         keyboard = update_keyboard()
-        bot.edit_message_text(f"Текущая громкость: {get_current_volume()}",
+        if get_prev_volume() != get_current_volume():
+            bot.edit_message_text(f"Текущая громкость: {get_current_volume()}",
                               chat_id=USER_ID, message_id=first_message_id,
                               reply_markup=keyboard)
 
     def update_keyboard():
         # Обновляем клавиатуру в зависимости от состояния звука
-        mute_status = is_mute()
-        mute_button_text = "Выключить звук" if not mute_status else "Включить звук"
         keyboard = types.InlineKeyboardMarkup()
+
+        # Кнопки управления громкостью
         button1 = types.InlineKeyboardButton("◀️ Уменьшить", callback_data='button1')
         button2 = types.InlineKeyboardButton("Увеличить ▶️", callback_data='button2')
+        mute_button_text = "Выключить звук" if not is_mute() else "Включить звук"
         button3 = types.InlineKeyboardButton(mute_button_text, callback_data='button3')
         keyboard.add(button1, button2, button3)
+
+        # Ряд кнопок со значениями громкости
+        button_15 = types.InlineKeyboardButton("15", callback_data='volume_15')
+        button_30 = types.InlineKeyboardButton("30", callback_data='volume_30')
+        button_50 = types.InlineKeyboardButton("50", callback_data='volume_50')
+        button_75 = types.InlineKeyboardButton("75", callback_data='volume_75')
+        button_100 = types.InlineKeyboardButton("100", callback_data='volume_100')
+        keyboard.row(button_15, button_30, button_50, button_75, button_100)
         return keyboard
 
     # Обработка нажатий на кнопки
@@ -165,10 +188,31 @@ def handle_button_press(call):
         increase_volume(STEP)
         bot.answer_callback_query(call.id, "Громкость увеличена")
         update_volume_message()
+
+    elif call.data == 'volume_15':
+        set_volume(15)
+        bot.answer_callback_query(call.id, "Статус звука изменен")
+        update_volume_message()
+    elif call.data == 'volume_30':
+        set_volume(30)
+        bot.answer_callback_query(call.id, "Статус звука изменен")
+        update_volume_message()
+    elif call.data == 'volume_50':
+        set_volume(50)
+        bot.answer_callback_query(call.id, "Статус звука изменен")
+        update_volume_message()
+    elif call.data == 'volume_75':
+        set_volume(75)
+        bot.answer_callback_query(call.id, "Статус звука изменен")
+        update_volume_message()
+    elif call.data == 'volume_100':
+        set_volume(100)
+        bot.answer_callback_query(call.id, "Статус звука изменен")
+        update_volume_message()
+
     elif call.data == 'button3':
         if is_mute():
-            increase_volume(20)  # Установите это значение для "включения" звука
-
+            increase_volume(get_prev_volume())  # Установите это значение для "включения" звука
         else:
             decrease_volume(get_current_volume())  # Полное выключение звука
 

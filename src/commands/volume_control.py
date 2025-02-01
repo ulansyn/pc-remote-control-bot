@@ -17,15 +17,42 @@ if not os.path.exists('volume.json'):
 
 def update_volume(change):
     with open('volume.json', mode='r+') as file:
+        # Загрузить данные из JSON
         data = json.load(file)
         current_volume = data["volume"]
+
         new_volume = current_volume + change
+
         if 0 <= new_volume <= 100:
+            data["prev_volume"] = current_volume
+
             volume.SetMasterVolumeLevelScalar(new_volume / 100, None)
+
             data["volume"] = new_volume
             file.seek(0)
-            json.dump(data, file)
+            json.dump(data, file, indent=4)
             file.truncate()
+
+            return new_volume
+        return current_volume
+
+
+
+def set_volume(change):
+    with open('volume.json', mode='r+') as file:
+        # Загрузить данные из JSON
+        data = json.load(file)
+        current_volume = data["volume"]
+
+        new_volume = change
+        if 0 <= new_volume <= 100:
+            volume.SetMasterVolumeLevelScalar(new_volume / 100, None)
+            data["prev_volume"] = current_volume
+            data["volume"] = new_volume
+            file.seek(0)
+            json.dump(data, file, indent=4)
+            file.truncate()
+
             return new_volume
         return current_volume
 
